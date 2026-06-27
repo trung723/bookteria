@@ -180,14 +180,25 @@ export default function Home() {
             }}
           ></Box>
           {posts.map((post, index) => {
-            if (posts.length === index + 1) {
-              return (
-                <Post ref={lastPostElementRef} key={post.id} post={post} />
-              );
-            } else {
-              return <Post key={post.id} post={post} />;
-            }
-          })}
+              if (posts.length === index + 1) {
+                return (
+                  <Post
+                    ref={lastPostElementRef}
+                    key={post.id}
+                    post={post}
+                    onDeleted={(id) => setPosts(prev => prev.filter(p => p.id !== id))}
+                  />
+                );
+              } else {
+                return (
+                  <Post
+                    key={post.id}
+                    post={post}
+                    onDeleted={(id) => setPosts(prev => prev.filter(p => p.id !== id))}
+                  />
+                );
+              }
+            })}
           {loading && (
             <Box
               sx={{ display: "flex", justifyContent: "center", width: "100%" }}

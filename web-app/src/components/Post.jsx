@@ -40,12 +40,14 @@ const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
   };
 
   const handleDeletePost = async () => {
-    try {
-      await deletePost(post.id);
-      onDeleted && onDeleted(post.id);
-    } catch (e) { console.error(e); }
-    setAnchorEl(null);
-  };
+  try {
+    await deletePost(post.id);
+    onDeleted && onDeleted(post.id);  
+  } catch (e) {
+    console.error(e);
+  }
+  setAnchorEl(null);
+};
 
   return (
     <Box ref={ref} sx={{ width: "100%", mb: 1 }}>
