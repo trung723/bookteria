@@ -179,15 +179,26 @@ export default function Home() {
               width: "100%", // Ensure content takes full width
             }}
           ></Box>
-          {posts.map((post, index) => {
-            if (posts.length === index + 1) {
-              return (
-                <Post ref={lastPostElementRef} key={post.id} post={post} />
-              );
-            } else {
-              return <Post key={post.id} post={post} />;
-            }
-          })}
+         {posts.map((post, index) => {
+  if (posts.length === index + 1) {
+    return (
+      <Post
+        ref={lastPostElementRef}
+        key={post.id}
+        post={post}
+        onDeleted={(id) => setPosts(prev => prev.filter(p => p.id !== id))}
+      />
+    );
+  } else {
+    return (
+      <Post
+        key={post.id}
+        post={post}
+        onDeleted={(id) => setPosts(prev => prev.filter(p => p.id !== id))}
+      />
+    );
+  }
+})}
           {loading && (
             <Box
               sx={{ display: "flex", justifyContent: "center", width: "100%" }}
