@@ -93,7 +93,7 @@ export default function Login() {
         >
           <CardContent>
             <Typography variant="h5" component="h1" gutterBottom>
-              Welcome to Devtetia
+              Welcome to Bookteria
             </Typography>
             <Box
               component="form"
