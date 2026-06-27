@@ -6,9 +6,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.devteria.identity.dto.request.ApiResponse;
-import com.devteria.identity.dto.request.UserCreationRequest;
-import com.devteria.identity.dto.request.UserUpdateRequest;
+import com.devteria.identity.dto.request.*;
 import com.devteria.identity.dto.response.UserResponse;
 import com.devteria.identity.service.UserService;
 
@@ -63,6 +61,23 @@ public class UserController {
     ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
+                .build();
+    }
+    // Thêm 2 endpoint — không cần token nên để PUBLIC
+
+    @PostMapping("/forgot-password")
+    ApiResponse<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        userService.forgotPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Reset password email sent successfully")
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userService.resetPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password reset successfully")
                 .build();
     }
 }

@@ -3,14 +3,15 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Divider,
+  FormControlLabel,
   TextField,
   Typography,
   Snackbar,
   Alert,
 } from "@mui/material";
 
-import GoogleIcon from "@mui/icons-material/Google";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logIn, isAuthenticated } from "../services/authenticationService";
@@ -18,30 +19,29 @@ import { logIn, isAuthenticated } from "../services/authenticationService";
 export default function Login() {
   const navigate = useNavigate();
 
-  const handleCloseSnackBar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setSnackBarOpen(false);
-  };
-
-  const handleClick = () => {
-    alert(
-      "Please refer to Oauth2 series for this implemetation guidelines. https://www.youtube.com/playlist?list=PL2xsxmVse9IbweCh6QKqZhousfEWabSeq"
-    );
-  };
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [snackBarOpen, setSnackBarOpen] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
 
   useEffect(() => {
     if (isAuthenticated()) {
       navigate("/");
     }
+    const savedUsername = localStorage.getItem("rememberedUsername");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    if (savedUsername && savedPassword) {
+      setUsername(savedUsername);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
   }, [navigate]);
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [snackBarOpen, setSnackBarOpen] = useState(false);
-  const [snackBarMessage, setSnackBarMessage] = useState("");
+  const handleCloseSnackBar = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackBarOpen(false);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -49,10 +49,19 @@ export default function Login() {
     try {
       const response = await logIn(username, password);
       console.log("Response body:", response.data);
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", username);
+        localStorage.setItem("rememberedPassword", password);
+      } else {
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberedPassword");
+      }
+
       navigate("/");
     } catch (error) {
-      const errorResponse = error.response.data;
-      setSnackBarMessage(errorResponse.message);
+      const errorResponse = error.response?.data;
+      setSnackBarMessage(errorResponse?.message || "Login failed. Please try again.");
       setSnackBarOpen(true);
     }
   };
@@ -74,13 +83,14 @@ export default function Login() {
           {snackBarMessage}
         </Alert>
       </Snackbar>
+
       <Box
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
         height="100vh"
-        bgcolor={"#f0f2f5"}
+        bgcolor="#f0f2f5"
       >
         <Card
           sx={{
@@ -95,12 +105,12 @@ export default function Login() {
             <Typography variant="h5" component="h1" gutterBottom>
               Welcome to Bookteria
             </Typography>
+
             <Box
               component="form"
               display="flex"
               flexDirection="column"
               alignItems="center"
-              justifyContent="center"
               width="100%"
               onSubmit={handleSubmit}
             >
@@ -121,41 +131,68 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                width="100%"
+                mt={1}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      color="primary"
+                      size="small"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">Remember me</Typography>
+                  }
+                />
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
+                  onClick={() => navigate("/forgot-password")}
+                >
+                  Forgot password?
+                </Typography>
+              </Box>
+
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
                 size="large"
-                onClick={handleSubmit}
                 fullWidth
-                sx={{
-                  mt: "15px",
-                  mb: "25px",
-                }}
+                sx={{ mt: "15px", mb: "25px" }}
               >
                 Login
               </Button>
-              <Divider></Divider>
+
+              <Divider flexItem />
             </Box>
 
-            <Box display="flex" flexDirection="column" width="100%" gap="25px">
+            <Box
+              display="flex"
+              flexDirection="column"
+              width="100%"
+              gap="25px"
+              mt={2}
+            >
               <Button
                 type="button"
                 variant="contained"
-                color="secondary"
-                size="large"
-                onClick={handleClick}
-                fullWidth
-                sx={{ gap: "10px" }}
-              >
-                <GoogleIcon />
-                Continue with Google
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
                 color="success"
                 size="large"
+                fullWidth
+                onClick={() => navigate("/register")}
               >
                 Create an account
               </Button>
