@@ -1,19 +1,20 @@
-package com.devteria.post.dto.response;
+package com.devteria.post.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
+import java.time.Instant;
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserProfileResponse {
+public class Comment {
     String id;
     String userId;
     String username;
-    String avatar;
-    String firstName;
-    String lastName;
-    String city;
+    String content;
+    Instant createdDate;
 }
