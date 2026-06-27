@@ -1,13 +1,18 @@
 import { forwardRef, useState } from "react";
 import {
   Box, Typography, Avatar, IconButton, TextField, Button,
-  Collapse, Divider, Menu, MenuItem,
+  Collapse, Divider, Menu, MenuItem, Popover, List, ListItem,
+  ListItemIcon, ListItemText, Snackbar, Alert,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ShareIcon from "@mui/icons-material/Share";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LinkIcon from "@mui/icons-material/Link";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import TwitterIcon from "@mui/icons-material/Twitter";
 import { likePost, addComment, deleteComment, deletePost } from "../services/postService";
 
 const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
@@ -15,6 +20,8 @@ const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
+  const [shareAnchorEl, setShareAnchorEl] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
   const handleLike = async () => {
     try {
@@ -40,14 +47,42 @@ const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
   };
 
   const handleDeletePost = async () => {
-  try {
-    await deletePost(post.id);
-    onDeleted && onDeleted(post.id);  
-  } catch (e) {
-    console.error(e);
-  }
-  setAnchorEl(null);
-};
+    try {
+      await deletePost(post.id);
+      onDeleted && onDeleted(post.id);
+    } catch (e) {
+      console.error(e);
+    }
+    setAnchorEl(null);
+  };
+
+  const postUrl = `${window.location.origin}/post/${post.id}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(postUrl).then(() => {
+      setSnackbar({ open: true, message: "Đã sao chép liên kết!" });
+    });
+    setShareAnchorEl(null);
+  };
+
+  const handleShareFacebook = () => {
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`,
+      "_blank",
+      "width=600,height=400"
+    );
+    setShareAnchorEl(null);
+  };
+
+  const handleShareTwitter = () => {
+    const text = post.content?.slice(0, 100) || "";
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(text)}`,
+      "_blank",
+      "width=600,height=400"
+    );
+    setShareAnchorEl(null);
+  };
 
   return (
     <Box ref={ref} sx={{ width: "100%", mb: 1 }}>
@@ -73,14 +108,67 @@ const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
 
       {/* Actions */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {/* Like */}
         <IconButton size="small" onClick={handleLike} color={post.likedByMe ? "error" : "default"}>
           {post.likedByMe ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
         </IconButton>
         <Typography fontSize={13} color="text.secondary">{post.likeCount || 0}</Typography>
+
+        {/* Comment */}
         <IconButton size="small" onClick={() => setShowComments(v => !v)}>
           <ChatBubbleOutlineIcon fontSize="small" />
         </IconButton>
         <Typography fontSize={13} color="text.secondary">{post.comments?.length || 0}</Typography>
+
+        {/* Share */}
+        <IconButton size="small" onClick={(e) => setShareAnchorEl(e.currentTarget)}>
+          <ShareIcon fontSize="small" />
+        </IconButton>
+        <Typography fontSize={13} color="text.secondary">Share</Typography>
+
+        <Popover
+          open={Boolean(shareAnchorEl)}
+          anchorEl={shareAnchorEl}
+          onClose={() => setShareAnchorEl(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+          PaperProps={{ sx: { borderRadius: 2, boxShadow: 3, minWidth: 200 } }}
+        >
+          <List dense disablePadding>
+            <ListItem
+              button
+              onClick={handleCopyLink}
+              sx={{ px: 2, py: 1, "&:hover": { bgcolor: "grey.100" }, cursor: "pointer" }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                <LinkIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Sao chép liên kết" primaryTypographyProps={{ fontSize: 14 }} />
+            </ListItem>
+            <Divider />
+            <ListItem
+              button
+              onClick={handleShareFacebook}
+              sx={{ px: 2, py: 1, "&:hover": { bgcolor: "grey.100" }, cursor: "pointer" }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                <FacebookIcon fontSize="small" sx={{ color: "#1877F2" }} />
+              </ListItemIcon>
+              <ListItemText primary="Chia sẻ lên Facebook" primaryTypographyProps={{ fontSize: 14 }} />
+            </ListItem>
+            <Divider />
+            <ListItem
+              button
+              onClick={handleShareTwitter}
+              sx={{ px: 2, py: 1, "&:hover": { bgcolor: "grey.100" }, cursor: "pointer" }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                <TwitterIcon fontSize="small" sx={{ color: "#1DA1F2" }} />
+              </ListItemIcon>
+              <ListItemText primary="Chia sẻ lên Twitter" primaryTypographyProps={{ fontSize: 14 }} />
+            </ListItem>
+          </List>
+        </Popover>
       </Box>
 
       {/* Comments */}
@@ -109,6 +197,18 @@ const Post = forwardRef(({ post: initialPost, onDeleted }, ref) => {
           </Button>
         </Box>
       </Collapse>
+
+      {/* Snackbar copy link */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={2500}
+        onClose={() => setSnackbar({ open: false, message: "" })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" variant="filled" sx={{ fontSize: 13 }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 });
