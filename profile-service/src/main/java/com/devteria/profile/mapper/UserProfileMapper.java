@@ -1,17 +1,21 @@
 package com.devteria.profile.mapper;
 
-import com.devteria.profile.dto.request.UpdateProfileRequest;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import com.devteria.profile.dto.request.ProfileCreationRequest;
+import com.devteria.profile.dto.request.UpdateProfileRequest;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.entity.UserProfile;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface UserProfileMapper {
     UserProfile toUserProfile(ProfileCreationRequest request);
 
+    @Mapping(target = "followerCount", ignore = true)
+    @Mapping(target = "followingCount", ignore = true)
+    @Mapping(target = "followedByMe", ignore = true)
     UserProfileResponse toUserProfileResponse(UserProfile entity);
 
     void update(@MappingTarget UserProfile entity, UpdateProfileRequest request);

@@ -4,23 +4,16 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PostResponse {
+public class CommentResponse {
     String id;
-    String content;
     String userId;
     String username;
-    String userAvatar;
-    String created;
+    String content;
     Instant createdDate;
-    Instant modifiedDate;
-    int likeCount;
-    boolean likedByMe;
-    List<CommentResponse> comments;
 }

@@ -20,4 +20,7 @@ public class UserProfileResponse {
     String lastName;
     LocalDate dob;
     String city;
+    int followerCount;
+    int followingCount;
+    boolean followedByMe; // ← đổi từ isFollowedByMe thành followedByMe
 }
