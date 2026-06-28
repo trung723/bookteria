@@ -1,17 +1,20 @@
 package com.devteria.chat.controller;
 
-import com.devteria.chat.dto.ApiResponse;
+import java.util.List;
 
+import jakarta.validation.Valid;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import com.devteria.chat.dto.ApiResponse;
 import com.devteria.chat.dto.request.ConversationRequest;
 import com.devteria.chat.dto.response.ConversationResponse;
 import com.devteria.chat.service.ConversationService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,5 +35,20 @@ public class ConversationController {
         return ApiResponse.<List<ConversationResponse>>builder()
                 .result(conversationService.myConversations())
                 .build();
+    }
+
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<List<ConversationResponse>> getAllConversations() {
+        return ApiResponse.<List<ConversationResponse>>builder()
+                .result(conversationService.getAllConversations())
+                .build();
+    }
+
+    @DeleteMapping("/admin/{conversationId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<Void> deleteConversation(@PathVariable String conversationId) {
+        conversationService.deleteConversation(conversationId);
+        return ApiResponse.<Void>builder().build();
     }
 }

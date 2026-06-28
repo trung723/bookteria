@@ -122,6 +122,12 @@ export default function Header() {
       open={isMobileMenuOpen} onClose={() => setMobileMoreAnchorEl(null)}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
       transformOrigin={{ vertical: "top", horizontal: "right" }}>
+      <MenuItem onClick={() => { setMobileMoreAnchorEl(null); navigate("/chat"); }}>
+        <IconButton size="large" color="inherit">
+          <Badge badgeContent={0} color="error"><MailIcon /></Badge>
+        </IconButton>
+        <p>Messages</p>
+      </MenuItem>
       <MenuItem onClick={handleOpenNotif}>
         <IconButton size="large" color="inherit">
           <Badge badgeContent={unreadCount} color="error"><NotificationsIcon /></Badge>
@@ -143,11 +149,11 @@ export default function Header() {
       PaperProps={{ sx: { width: 360, maxHeight: 480, display: "flex", flexDirection: "column" } }}>
       {/* Header */}
       <Box sx={{ px: 2, py: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider" }}>
-        <Typography fontWeight={700}>Thông báo</Typography>
+        <Typography fontWeight={700}>Notifications</Typography>
         {unreadCount > 0 && (
-          <Tooltip title="Đánh dấu tất cả đã đọc">
+          <Tooltip title="Mark all as read">
             <Button size="small" startIcon={<DoneAllIcon />} onClick={handleMarkAllRead}>
-              Đọc tất cả
+              Read all
             </Button>
           </Tooltip>
         )}
@@ -156,7 +162,7 @@ export default function Header() {
       <Box sx={{ overflowY: "auto", flex: 1 }}>
         {notifications.length === 0 ? (
           <Typography color="text.secondary" textAlign="center" py={4} fontSize={13}>
-            Không có thông báo nào
+            No notifications
           </Typography>
         ) : (
           <List disablePadding>
@@ -170,7 +176,7 @@ export default function Header() {
                     "&:hover": { bgcolor: "action.selected" },
                     py: 1.5,
                   }}>
-                  {/* Dot chưa đọc */}
+                  {/* Unread dot */}
                   <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: n.read ? "transparent" : "primary.main", mt: 1, mr: 1.5, flexShrink: 0 }} />
                   <ListItemText
                     primary={<Typography fontSize={13} fontWeight={n.read ? 400 : 600}>{n.subject}</Typography>}

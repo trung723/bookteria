@@ -1,14 +1,14 @@
 package com.devteria.chat.repository;
 
-import com.devteria.chat.entity.WebSocketSession;
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.devteria.chat.entity.WebSocketSession;
 
 @Repository
-public interface WebSocketSessionRepository
-        extends MongoRepository<WebSocketSession, String> {
+public interface WebSocketSessionRepository extends MongoRepository<WebSocketSession, String> {
     void deleteBySocketSessionId(String socketId);
 
     List<WebSocketSession> findAllByUserIdIn(List<String> userIds);

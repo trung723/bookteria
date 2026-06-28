@@ -184,7 +184,7 @@ export default function Chat() {
 
       const connectionUrl = "http://localhost:8099?token=" + getToken();
 
-      socketRef.current = new io(connectionUrl);
+      socketRef.current = io(connectionUrl);
 
       socketRef.current.on("connect", () => {
         console.log("Socket connected");

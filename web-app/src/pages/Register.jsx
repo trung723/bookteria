@@ -22,7 +22,7 @@ export default function Register() {
         e.preventDefault();
 
         if (form.password !== form.confirmPassword) {
-            setSnackbar({ open: true, message: "Mật khẩu không khớp!", severity: "error" });
+            setSnackbar({ open: true, message: "Passwords do not match!", severity: "error" });
             return;
         }
 
@@ -35,10 +35,10 @@ export default function Register() {
                 email:     form.email,
             });
 
-            setSnackbar({ open: true, message: "Đăng ký thành công!", severity: "success" });
+            setSnackbar({ open: true, message: "Registration successful!", severity: "success" });
             setTimeout(() => navigate("/login"), 1500);
         } catch (error) {
-            const msg = error.response?.data?.message || "Đăng ký thất bại!";
+            const msg = error.response?.data?.message || "Registration failed!";
             setSnackbar({ open: true, message: msg, severity: "error" });
         }
     };
@@ -61,33 +61,33 @@ export default function Register() {
                 <Card sx={{ minWidth: 300, maxWidth: 420, boxShadow: 3, borderRadius: 3, padding: 4 }}>
                     <CardContent>
                         <Typography variant="h5" component="h1" gutterBottom>
-                            Tạo tài khoản Bookteria
+                            Create Bookteria Account
                         </Typography>
 
                         <Box component="form" display="flex" flexDirection="column" gap={2}
                             onSubmit={handleSubmit}>
                             <Box display="flex" gap={2}>
-                                <TextField label="Họ" name="firstName" fullWidth
+                                <TextField label="First Name" name="firstName" fullWidth
                                     value={form.firstName} onChange={handleChange} required/>
-                                <TextField label="Tên" name="lastName" fullWidth
+                                <TextField label="Last Name" name="lastName" fullWidth
                                     value={form.lastName} onChange={handleChange} required/>
                             </Box>
                             <TextField label="Email" name="email" type="email" fullWidth
-                                value={form.email} onChange={handleChange} required/>
+                                    value={form.email} onChange={handleChange} required/>
                             <TextField label="Username" name="username" fullWidth
                                 value={form.username} onChange={handleChange} required/>
-                            <TextField label="Mật khẩu" name="password" type="password" fullWidth
+                            <TextField label="Password" name="password" type="password" fullWidth
                                 value={form.password} onChange={handleChange} required/>
-                            <TextField label="Xác nhận mật khẩu" name="confirmPassword"
+                            <TextField label="Confirm Password" name="confirmPassword"
                                 type="password" fullWidth
                                 value={form.confirmPassword} onChange={handleChange} required/>
 
                             <Button type="submit" variant="contained" color="success"
                                 size="large" fullWidth sx={{ mt: 1 }}>
-                                Đăng ký
+                                Sign Up
                             </Button>
                             <Button variant="text" fullWidth onClick={() => navigate("/login")}>
-                                Đã có tài khoản? Đăng nhập
+                                Already have an account? Log In
                             </Button>
                         </Box>
                     </CardContent>

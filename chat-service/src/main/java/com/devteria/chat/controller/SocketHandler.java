@@ -1,23 +1,25 @@
 package com.devteria.chat.controller;
 
+import java.time.Instant;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
+import org.springframework.stereotype.Component;
+
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
-import com.corundumstudio.socketio.annotation.OnEvent;
 import com.devteria.chat.dto.request.IntrospectRequest;
 import com.devteria.chat.entity.WebSocketSession;
 import com.devteria.chat.service.IdentityService;
 import com.devteria.chat.service.WebSocketSessionService;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Slf4j
 @Component
@@ -34,9 +36,8 @@ public class SocketHandler {
         String token = client.getHandshakeData().getSingleUrlParam("token");
 
         // Verify token
-        var introspectResponse = identityService.introspect(IntrospectRequest.builder()
-                        .token(token)
-                .build());
+        var introspectResponse = identityService.introspect(
+                IntrospectRequest.builder().token(token).build());
 
         // If Token is invalid disconnect
         if (introspectResponse.isValid()) {

@@ -67,7 +67,7 @@ function PostRow({ post, onDelete }) {
         </TableCell>
 
         <TableCell align="right">
-          <IconButton size="small" onClick={() => setDetailOpen(true)} title="Xem chi tiết">
+          <IconButton size="small" onClick={() => setDetailOpen(true)} title="View details">
             <OpenInNewIcon fontSize="small" sx={{ color: "#868e96" }} />
           </IconButton>
           <IconButton size="small" onClick={e => setAnchor(e.currentTarget)}>
@@ -78,7 +78,7 @@ function PostRow({ post, onDelete }) {
               sx={{ fontSize: 13, color: "#e03131" }}
               onClick={() => { setConfirmOpen(true); setAnchor(null); }}
             >
-              Xóa bài viết
+              Delete Post
             </MenuItem>
           </Menu>
         </TableCell>
@@ -86,21 +86,21 @@ function PostRow({ post, onDelete }) {
 
       {/* Confirm delete */}
       <Dialog open={Boolean(confirmOpen)} onClose={() => setConfirmOpen(false)} maxWidth="xs">
-        <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>Xác nhận xóa</DialogTitle>
+        <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Bạn có chắc muốn xóa bài viết của <b>{post.username}</b>? Hành động này không thể hoàn tác.
+            Are you sure you want to delete this post by <b>{post.username}</b>? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)} size="small">Hủy</Button>
-          <Button onClick={() => { onDelete(post.id); setConfirmOpen(false); }} color="error" variant="contained" size="small">Xóa</Button>
+          <Button onClick={() => setConfirmOpen(false)} size="small">Cancel</Button>
+          <Button onClick={() => { onDelete(post.id); setConfirmOpen(false); }} color="error" variant="contained" size="small">Delete</Button>
         </DialogActions>
       </Dialog>
 
       {/* Detail dialog */}
       <Dialog open={detailOpen} onClose={() => setDetailOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontSize: 15, fontWeight: 600 }}>Chi tiết bài viết</DialogTitle>
+        <DialogTitle sx={{ fontSize: 15, fontWeight: 600 }}>Post Details</DialogTitle>
         <DialogContent dividers>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
             <Avatar src={post.userAvatar} sx={{ width: 36, height: 36 }}>{initials}</Avatar>
@@ -113,17 +113,17 @@ function PostRow({ post, onDelete }) {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <FavoriteIcon sx={{ fontSize: 15, color: "#e03131" }} />
-              <Typography variant="caption">{post.likeCount ?? 0} lượt thích</Typography>
+              <Typography variant="caption">{post.likeCount ?? 0} likes</Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <ChatBubbleOutlineIcon sx={{ fontSize: 15, color: "#868e96" }} />
-              <Typography variant="caption">{post.comments?.length ?? 0} bình luận</Typography>
+              <Typography variant="caption">{post.comments?.length ?? 0} comments</Typography>
             </Box>
           </Box>
           {post.comments?.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="caption" fontWeight={600} color="text.secondary" display="block" mb={1}>
-                BÌNH LUẬN
+                COMMENTS
               </Typography>
               {post.comments.map((c, i) => (
                 <Box key={i} sx={{ mb: 1, pl: 1, borderLeft: "2px solid #f1f3f5" }}>
@@ -135,7 +135,7 @@ function PostRow({ post, onDelete }) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDetailOpen(false)} size="small">Đóng</Button>
+          <Button onClick={() => setDetailOpen(false)} size="small">Close</Button>
         </DialogActions>
       </Dialog>
     </>
@@ -157,12 +157,12 @@ export default function PostManagement() {
     try {
       setLoading(true);
       setError(null);
-      // BE dùng /post/feed (không có /post/admin/posts)
+      // Backend uses /post/feed (there is no /post/admin/posts)
       const res  = await getAllPosts(p, 20);
       const data = res.data?.result?.data ?? res.data?.result ?? [];
       setPosts(prev => p === 1 ? data : [...prev, ...data]);
     } catch {
-      setError("Không thể tải danh sách bài viết.");
+      setError("Failed to load posts list.");
     } finally {
       setLoading(false);
     }
@@ -185,11 +185,11 @@ export default function PostManagement() {
       const updated = posts.filter(p => p.id !== postId);
       setPosts(updated);
     } catch {
-      setError("Không thể xóa bài viết. Kiểm tra quyền hoặc thử lại.");
+      setError("Failed to delete post. Check permissions or try again.");
     }
   };
 
-  // Pagination của filtered list
+  // Pagination of the filtered list
   const totalPages   = Math.ceil(filtered.length / PAGE_SIZE);
   const pagedPosts   = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -197,7 +197,7 @@ export default function PostManagement() {
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={0.5}>Post Management</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Quản lý tất cả bài viết trong hệ thống
+        Manage all posts in the system
       </Typography>
 
       {error && (
@@ -206,11 +206,11 @@ export default function PostManagement() {
 
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Danh sách bài viết ({filtered.length})
+          Post list ({filtered.length})
         </Typography>
         <TextField
           size="small"
-          placeholder="Tìm theo tác giả hoặc nội dung..."
+          placeholder="Search by author or content..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           InputProps={{
@@ -238,7 +238,7 @@ export default function PostManagement() {
               {pagedPosts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                    <Typography color="text.secondary" variant="body2">Không tìm thấy bài viết nào.</Typography>
+                    <Typography color="text.secondary" variant="body2">No posts found.</Typography>
                   </TableCell>
                 </TableRow>
               ) : (

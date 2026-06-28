@@ -32,7 +32,7 @@ function UserCard({ user, onToggleFollow }) {
           {user.firstName} {user.lastName}{user.city ? ` • ${user.city}` : ""}
         </Typography>
         <Typography fontSize={11} color="text.secondary">
-          {user.followerCount || 0} người theo dõi
+          {user.followerCount || 0} followers
         </Typography>
       </Box>
       <Button
@@ -43,7 +43,7 @@ function UserCard({ user, onToggleFollow }) {
         onClick={handleClick}
         disabled={loading}
       >
-        {user.followedByMe ? "Hủy theo dõi" : "Theo dõi"}
+        {user.followedByMe ? "Unfollow" : "Follow"}
       </Button>
     </Box>
   );
@@ -99,10 +99,10 @@ export default function Friends() {
     try {
       if (user.followedByMe) {
         await unfollowUser(user.userId);
-        setSnack({ open: true, message: `Đã hủy theo dõi ${user.username}`, severity: "info" });
+        setSnack({ open: true, message: `Unfollowed ${user.username}`, severity: "info" });
       } else {
         await followUser(user.userId);
-        setSnack({ open: true, message: `Đã theo dõi ${user.username}`, severity: "success" });
+        setSnack({ open: true, message: `Followed ${user.username}`, severity: "success" });
       }
       // Refresh data
       if (myUserId) { loadFollowing(myUserId); loadFollowers(myUserId); }
@@ -114,13 +114,13 @@ export default function Friends() {
       setFollowers(toggle);
       setSearchResults(toggle);
     } catch {
-      setSnack({ open: true, message: "Thao tác thất bại!", severity: "error" });
+      setSnack({ open: true, message: "Action failed!", severity: "error" });
     }
   };
 
   const renderList = (list) => {
     if (!list.length) return (
-      <Typography color="text.secondary" textAlign="center" py={4}>Không có ai ở đây.</Typography>
+      <Typography color="text.secondary" textAlign="center" py={4}>No one here.</Typography>
     );
     return list.map((u, i) => (
       <Box key={u.userId}>
@@ -139,23 +139,23 @@ export default function Friends() {
 
       <Card sx={{ minWidth: 500, maxWidth: 640, mt: "20px", boxShadow: 2, borderRadius: 2 }}>
         <CardContent>
-          <Typography variant="h6" fontWeight={700} mb={2}>Bạn bè & Theo dõi</Typography>
+          <Typography variant="h6" fontWeight={700} mb={2}>Friends & Followers</Typography>
 
           {/* Search bar */}
           <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
             <TextField
-              fullWidth size="small" placeholder="Tìm kiếm người dùng..."
+              fullWidth size="small" placeholder="Search users..."
               value={keyword} onChange={e => setKeyword(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSearch()}
               InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }}
             />
-            <Button variant="contained" onClick={handleSearch} disabled={loading}>Tìm</Button>
+            <Button variant="contained" onClick={handleSearch} disabled={loading}>Search</Button>
           </Box>
 
           <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: "divider", mb: 1 }}>
-            <Tab label={<Box>Đang theo dõi <Chip label={following.length} size="small" sx={{ ml: 0.5 }} /></Box>} />
-            <Tab label={<Box>Người theo dõi <Chip label={followers.length} size="small" sx={{ ml: 0.5 }} /></Box>} />
-            {searchResults.length > 0 && <Tab label="Kết quả tìm kiếm" />}
+            <Tab label={<Box>Following <Chip label={following.length} size="small" sx={{ ml: 0.5 }} /></Box>} />
+            <Tab label={<Box>Followers <Chip label={followers.length} size="small" sx={{ ml: 0.5 }} /></Box>} />
+            {searchResults.length > 0 && <Tab label="Search Results" />}
           </Tabs>
 
           {loading && <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}><CircularProgress size={28} /></Box>}

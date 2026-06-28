@@ -82,7 +82,7 @@ function UserRow({ user, onDelete }) {
               sx={{ fontSize: 13, color: "#e03131" }}
               onClick={() => { setConfirmOpen(true); setAnchor(null); }}
             >
-              Xóa người dùng
+              Delete User
             </MenuItem>
           </Menu>
         </TableCell>
@@ -90,19 +90,19 @@ function UserRow({ user, onDelete }) {
 
       {/* Confirm delete dialog */}
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} maxWidth="xs">
-        <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>Xác nhận xóa</DialogTitle>
+        <DialogTitle sx={{ fontSize: 16, fontWeight: 600 }}>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Bạn có chắc muốn xóa tài khoản <b>{user.username}</b>? Hành động này không thể hoàn tác.
+            Are you sure you want to delete user account <b>{user.username}</b>? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)} size="small">Hủy</Button>
+          <Button onClick={() => setConfirmOpen(false)} size="small">Cancel</Button>
           <Button
             onClick={() => { onDelete(user.id); setConfirmOpen(false); }}
             color="error" variant="contained" size="small"
           >
-            Xóa
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
@@ -122,7 +122,7 @@ export default function UserManagement() {
       setLoading(true);
       setError(null);
 
-      // Gọi song song identity users + profile để merge dữ liệu đầy đủ
+      // Fetch identity users and profile details in parallel
       const [usersRes, profilesRes] = await Promise.allSettled([
         getAllUsers(),
         getAllProfiles(),
@@ -131,16 +131,16 @@ export default function UserManagement() {
       const identityUsers = usersRes.status    === "fulfilled" ? (usersRes.value.data?.result    ?? []) : [];
       const profiles      = profilesRes.status === "fulfilled" ? (profilesRes.value.data?.result ?? []) : [];
 
-      // Merge: identity user + profile bằng userId
+      // Merge identity user and profile using userId
       const merged = identityUsers.map(u => {
         const profile = profiles.find(p => p.userId === u.id) ?? {};
-        return { ...u, ...profile, id: u.id }; // giữ id từ identity
+        return { ...u, ...profile, id: u.id }; // keep identity id
       });
 
       setUsers(merged);
       setFiltered(merged);
     } catch {
-      setError("Không thể tải danh sách người dùng.");
+      setError("Failed to load user list.");
     } finally {
       setLoading(false);
     }
@@ -167,7 +167,7 @@ export default function UserManagement() {
       const updated = users.filter(u => u.id !== userId);
       setUsers(updated);
     } catch {
-      setError("Không thể xóa người dùng. Có thể cần quyền ADMIN.");
+      setError("Failed to delete user. Make sure you have ADMIN permissions.");
     }
   };
 
@@ -175,7 +175,7 @@ export default function UserManagement() {
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={0.5}>User Management</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Quản lý tất cả người dùng trong hệ thống
+        Manage all registered users in the system
       </Typography>
 
       {error && (
@@ -184,11 +184,11 @@ export default function UserManagement() {
 
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Danh sách người dùng ({filtered.length})
+          User list ({filtered.length})
         </Typography>
         <TextField
           size="small"
-          placeholder="Tìm theo username, email, tên, thành phố..."
+          placeholder="Search by username, email, name, city..."
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
           InputProps={{
@@ -222,7 +222,7 @@ export default function UserManagement() {
                 <TableRow>
                   <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                     <Typography color="text.secondary" variant="body2">
-                      Không tìm thấy người dùng nào.
+                      No users found.
                     </Typography>
                   </TableCell>
                 </TableRow>

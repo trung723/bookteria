@@ -147,6 +147,26 @@ public class PostService {
         postRepository.save(post);
     }
 
+    public PostResponse updateComment(String postId, String commentId, CommentRequest request) {
+        String userId = currentUserId();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        List<Comment> comments = post.getComments();
+        if (comments == null) throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
+
+        Comment targetComment = comments.stream()
+                .filter(c -> c.getId().equals(commentId))
+                .findFirst()
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!targetComment.getUserId().equals(userId))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+
+        targetComment.setContent(request.getContent());
+        post.setComments(comments);
+        return buildResponse(postRepository.save(post), userId);
+    }
+
     public PageResponse<PostResponse> getMyPosts(int page, int size) {
         String userId = currentUserId();
         Sort sort = Sort.by("createdDate").descending();
@@ -159,6 +179,13 @@ public class PostService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(postList).build();
+    }
+
+    public PostResponse getPost(String postId) {
+        String userId = currentUserId();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        return buildResponse(post, userId);
     }
 
     public PageResponse<PostResponse> getFeed(int page, int size) {

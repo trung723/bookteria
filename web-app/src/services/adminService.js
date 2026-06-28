@@ -47,3 +47,23 @@ export const getDashboardData = async () => {
 
   return { users, profiles, posts: postsPage.data ?? [], totalPosts: postsPage.totalElements ?? 0 };
 };
+
+// ── Books ────────────────────────────────────────────────────────────────────
+export const getAllBooks = (keyword = "", page = 1, size = 10) =>
+  httpClient.get("/book/admin/books", { params: { keyword, page, size } });
+
+export const deleteBookAdmin = (bookId) =>
+  httpClient.delete(`/book/${bookId}`);
+
+export const createBookAdmin = (data) =>
+  httpClient.post("/book/create", data);
+
+export const updateBookAdmin = (bookId, data) =>
+  httpClient.put(`/book/${bookId}`, data);
+
+// ── Messages / Conversations ─────────────────────────────────────────────────
+export const getAllConversations = () =>
+  httpClient.get("/chat/conversations/admin/all");
+
+export const deleteConversationAdmin = (conversationId) =>
+  httpClient.delete(`/chat/conversations/admin/${conversationId}`);

@@ -33,11 +33,11 @@ export default function Dashboard() {
   useEffect(() => {
     getDashboardData()
       .then(setData)
-      .catch(() => setError("Không thể tải dữ liệu dashboard."))
+      .catch(() => setError("Failed to load dashboard data."))
       .finally(() => setLoading(false));
   }, []);
 
-  // Merge user identity + profile để hiển thị
+  // Merge user identity + profile for display
   const enrichedUsers = data.users.map(u => {
     const profile = data.profiles.find(p => p.userId === u.id) ?? {};
     return { ...u, ...profile };
@@ -52,7 +52,7 @@ export default function Dashboard() {
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" fontWeight={700} mb={0.5}>Dashboard</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Tổng quan về hoạt động của Devteria
+        Overview of system activity
       </Typography>
 
       {error && (
@@ -64,19 +64,19 @@ export default function Dashboard() {
       {/* Stat cards */}
       <Grid container spacing={2} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Tổng người dùng" value={data.users.length} loading={loading}
+          <StatCard label="Total Users" value={data.users.length} loading={loading}
             iconBg="#e8eaf6" icon={<PeopleIcon sx={{ color: "#3949ab", fontSize: 22 }} />} />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Email đã xác thực" value={verifiedUsers} loading={loading}
+          <StatCard label="Verified Emails" value={verifiedUsers} loading={loading}
             iconBg="#e8f5e9" icon={<VerifiedIcon sx={{ color: "#2e7d32", fontSize: 22 }} />} />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Bài viết (feed)" value={data.posts.length} loading={loading}
+          <StatCard label="Total Posts (Feed)" value={data.posts.length} loading={loading}
             iconBg="#fce4ec" icon={<ArticleIcon sx={{ color: "#c2185b", fontSize: 22 }} />} />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard label="Tài khoản Admin" value={adminUsers} loading={loading}
+          <StatCard label="Admin Accounts" value={adminUsers} loading={loading}
             iconBg="#fff3e0" icon={<PeopleIcon sx={{ color: "#e65100", fontSize: 22 }} />} />
         </Grid>
       </Grid>
@@ -87,13 +87,13 @@ export default function Dashboard() {
           <Paper elevation={0} sx={{ border: "1px solid #f1f3f5", borderRadius: 2, p: 2.5, height: "100%" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <PeopleIcon fontSize="small" sx={{ color: "text.secondary" }} />
-              <Typography variant="subtitle2" fontWeight={600}>Người dùng gần đây</Typography>
+              <Typography variant="subtitle2" fontWeight={600}>Recent Users</Typography>
             </Box>
 
             {loading ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>
             ) : recentUsers.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">Không có dữ liệu.</Typography>
+              <Typography variant="body2" color="text.secondary">No data available.</Typography>
             ) : recentUsers.map((u, i) => {
               const isAdmin   = u.roles?.some(r => r.name === "ADMIN");
               const initials  = [u.firstName, u.lastName].filter(Boolean).map(s => s[0]).join("").toUpperCase()
@@ -126,13 +126,13 @@ export default function Dashboard() {
           <Paper elevation={0} sx={{ border: "1px solid #f1f3f5", borderRadius: 2, p: 2.5, height: "100%" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
               <ArticleIcon fontSize="small" sx={{ color: "text.secondary" }} />
-              <Typography variant="subtitle2" fontWeight={600}>Bài viết gần đây</Typography>
+              <Typography variant="subtitle2" fontWeight={600}>Recent Posts</Typography>
             </Box>
 
             {loading ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>
             ) : recentPosts.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">Không có dữ liệu.</Typography>
+              <Typography variant="body2" color="text.secondary">No data available.</Typography>
             ) : recentPosts.map((post, i) => (
               <Box key={post.id || i}>
                 <Box sx={{ py: 1.5 }}>
