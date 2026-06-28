@@ -11,7 +11,7 @@ export const updateProfile = async (profileData) =>
   httpClient.put(API.UPDATE_PROFILE, profileData, { headers: { ...authHeader(), "Content-Type": "application/json" } });
 
 export const uploadAvatar = async (formData) =>
-  httpClient.put(API.UPDATE_AVATAR, formData, { headers: { ...authHeader(), "Content-Type": "multipart/form-data" } });
+  httpClient.put(API.UPDATE_AVATAR, formData, { headers: authHeader() });
 
 export const search = async (keyword) =>
   httpClient.post(API.SEARCH_USER, { keyword }, { headers: { ...authHeader(), "Content-Type": "application/json" } });

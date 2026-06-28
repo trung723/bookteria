@@ -49,7 +49,7 @@ export default function ResetPassword() {
         }
     };
 
-    // Token không tồn tại trong URL
+    // Token does not exist in URL
     if (!token) {
         return (
             <Box display="flex" alignItems="center" justifyContent="center" height="100vh">

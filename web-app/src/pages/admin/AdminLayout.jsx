@@ -9,6 +9,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import SettingsIcon from "@mui/icons-material/Settings";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import BookIcon from "@mui/icons-material/Book";
 import { Link, useLocation } from "react-router-dom";
 
 const DRAWER_WIDTH = 200;
@@ -17,9 +18,9 @@ const menuItems = [
   { key: "dashboard", label: "Dashboard",  icon: <DashboardIcon fontSize="small" />, path: "/admin" },
   { key: "analytics", label: "Analytics",  icon: <BarChartIcon fontSize="small" />,  path: "/admin/analytics" },
   { key: "users",     label: "Users",       icon: <PeopleIcon fontSize="small" />,    path: "/admin/users" },
+  { key: "books",     label: "Books",       icon: <BookIcon fontSize="small" />,      path: "/admin/books" },
   { key: "posts",     label: "Posts",       icon: <ArticleIcon fontSize="small" />,   path: "/admin/posts" },
-  { key: "messages",  label: "Messages",   icon: <MessageIcon fontSize="small" />,   path: "/admin/messages", badge: 2 },
-  { key: "reports",   label: "Reports",    icon: <AssessmentIcon fontSize="small" />, path: "/admin/reports" },
+  { key: "messages",  label: "Messages",   icon: <MessageIcon fontSize="small" />,   path: "/admin/messages" },
   { key: "settings",  label: "Settings",   icon: <SettingsIcon fontSize="small" />,  path: "/admin/settings" },
 ];
 

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -146,6 +147,17 @@ public class BookController {
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<PostSummaryResponse>>builder()
                 .result(bookService.getPostsByBook(bookId, page, size))
+                .build();
+    }
+
+    @GetMapping("/admin/books")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<PageResponse<BookResponse>> getAllBooksForAdmin(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<BookResponse>>builder()
+                .result(bookService.getAllBooksForAdmin(keyword, page, size))
                 .build();
     }
 }

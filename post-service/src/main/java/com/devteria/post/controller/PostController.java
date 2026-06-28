@@ -58,6 +58,14 @@ public class PostController {
         return ApiResponse.<Void>builder().build();
     }
 
+    @PutMapping("/{postId}/comments/{commentId}")
+    ApiResponse<PostResponse> updateComment(@PathVariable String postId,
+                                            @PathVariable String commentId,
+                                            @RequestBody CommentRequest request) {
+        return ApiResponse.<PostResponse>builder()
+                .result(postService.updateComment(postId, commentId, request)).build();
+    }
+
     @GetMapping("/my-posts")
     ApiResponse<PageResponse<PostResponse>> myPosts(
             @RequestParam(defaultValue = "1") int page,
@@ -72,5 +80,11 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<PostResponse>>builder()
                 .result(postService.getFeed(page, size)).build();
+    }
+
+    @GetMapping("/{postId}")
+    ApiResponse<PostResponse> getPost(@PathVariable String postId) {
+        return ApiResponse.<PostResponse>builder()
+                .result(postService.getPost(postId)).build();
     }
 }

@@ -1,32 +1,69 @@
 import httpClient from "../configurations/httpClient";
-import { getToken } from "./localStorageService";
+// Không cần authHeader() nữa — httpClient interceptor tự gắn token
 
-const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
-
-// ── Users ──────────────────────────────────────────────
+// ── Identity: Users ──────────────────────────────────────────────────────────
 export const getAllUsers = () =>
-  httpClient.get("/identity/users", { headers: authHeader() });
+  httpClient.get("/identity/users");
 
-export const updateUserStatus = (userId, status) =>
-  httpClient.put(`/identity/users/${userId}/status`, { status }, { headers: authHeader() });
+export const getUserById = (userId) =>
+  httpClient.get(`/identity/users/${userId}`);
 
-// ── Posts ──────────────────────────────────────────────
+export const updateUser = (userId, data) =>
+  httpClient.put(`/identity/users/${userId}`, data);
+
+export const deleteUser = (userId) =>
+  httpClient.delete(`/identity/users/${userId}`);
+
+// ── Profile: UserProfiles ────────────────────────────────────────────────────
+export const getAllProfiles = () =>
+  httpClient.get("/profile/users");
+
+export const getProfileByUserId = (userId) =>
+  httpClient.get(`/profile/users/by-userid/${userId}`);
+
+// ── Posts ────────────────────────────────────────────────────────────────────
+// BE không có /post/admin/posts → dùng /post/feed
 export const getAllPosts = (page = 1, size = 20) =>
-  httpClient.get("/post/admin/posts", { headers: authHeader(), params: { page, size } });
+  httpClient.get("/post/feed", { params: { page, size } });
 
 export const deletePostAdmin = (postId) =>
-  httpClient.delete(`/post/admin/posts/${postId}`, { headers: authHeader() });
+  httpClient.delete(`/post/${postId}`);
 
-// ── Reports ────────────────────────────────────────────
-export const getAllReports = () =>
-  httpClient.get("/post/admin/reports", { headers: authHeader() });
+// ── Roles ────────────────────────────────────────────────────────────────────
+export const getAllRoles = () =>
+  httpClient.get("/identity/roles");
 
-export const updateReportStatus = (reportId, status) =>
-  httpClient.put(`/post/admin/reports/${reportId}/status`, { status }, { headers: authHeader() });
+// ── Dashboard: tổng hợp từ các API thực ─────────────────────────────────────
+export const getDashboardData = async () => {
+  const [usersRes, profilesRes, postsRes] = await Promise.allSettled([
+    getAllUsers(),
+    getAllProfiles(),
+    getAllPosts(1, 50),
+  ]);
 
-// ── Dashboard / Analytics ──────────────────────────────
-export const getDashboardStats = () =>
-  httpClient.get("/identity/admin/stats", { headers: authHeader() });
+  const users     = usersRes.status    === "fulfilled" ? (usersRes.value.data?.result    ?? []) : [];
+  const profiles  = profilesRes.status === "fulfilled" ? (profilesRes.value.data?.result ?? []) : [];
+  const postsPage = postsRes.status    === "fulfilled" ? (postsRes.value.data?.result    ?? {}) : {};
 
-export const getAnalytics = (range = "7") =>
-  httpClient.get("/identity/admin/analytics", { headers: authHeader(), params: { range } });
+  return { users, profiles, posts: postsPage.data ?? [], totalPosts: postsPage.totalElements ?? 0 };
+};
+
+// ── Books ────────────────────────────────────────────────────────────────────
+export const getAllBooks = (keyword = "", page = 1, size = 10) =>
+  httpClient.get("/book/admin/books", { params: { keyword, page, size } });
+
+export const deleteBookAdmin = (bookId) =>
+  httpClient.delete(`/book/${bookId}`);
+
+export const createBookAdmin = (data) =>
+  httpClient.post("/book/create", data);
+
+export const updateBookAdmin = (bookId, data) =>
+  httpClient.put(`/book/${bookId}`, data);
+
+// ── Messages / Conversations ─────────────────────────────────────────────────
+export const getAllConversations = () =>
+  httpClient.get("/chat/conversations/admin/all");
+
+export const deleteConversationAdmin = (conversationId) =>
+  httpClient.delete(`/chat/conversations/admin/${conversationId}`);

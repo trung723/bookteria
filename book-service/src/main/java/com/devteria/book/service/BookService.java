@@ -55,6 +55,12 @@ public class BookService {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    private boolean isAdmin() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
     private UserProfileResponse fetchProfile(String userId) {
         try {
             return profileClient.getProfile(userId).getResult();
@@ -113,8 +119,8 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
 
-        // Chỉ người tạo mới được sửa
-        if (!book.getCreatedBy().equals(userId)) {
+        // Chỉ người tạo mới được sửa, trừ phi là ADMIN
+        if (!book.getCreatedBy().equals(userId) && !isAdmin()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -136,7 +142,7 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
 
-        if (!book.getCreatedBy().equals(userId)) {
+        if (!book.getCreatedBy().equals(userId) && !isAdmin()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -322,6 +328,24 @@ public class BookService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(summaries)
+                .build();
+    }
+
+    public PageResponse<BookResponse> getAllBooksForAdmin(String keyword, int page, int size) {
+        String userId = currentUserId();
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        org.springframework.data.domain.Page<Book> pageData;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            pageData = bookRepository.searchByKeyword(keyword, pageable);
+        } else {
+            pageData = bookRepository.findAll(pageable);
+        }
+        return PageResponse.<BookResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream().map(b -> toResponse(b, userId)).toList())
                 .build();
     }
 }

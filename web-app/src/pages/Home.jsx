@@ -11,12 +11,14 @@ import {
   Button,
   Snackbar,
   Alert,
+  Autocomplete,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { isAuthenticated, logOut } from "../services/authenticationService";
 import Scene from "./Scene";
 import Post from "../components/Post";
 import { getMyPosts, createPost } from "../services/postService";
+import { searchBooks, tagPost } from "../services/bookService";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -32,6 +34,31 @@ export default function Home() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
+  // Book tagging states
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [bookSearchKeyword, setBookSearchKeyword] = useState("");
+  const [bookOptions, setBookOptions] = useState([]);
+  const [searchingBooks, setSearchingBooks] = useState(false);
+
+  // Debounced search for books to tag
+  useEffect(() => {
+    if (bookSearchKeyword.length < 2) {
+      setBookOptions([]);
+      return;
+    }
+    setSearchingBooks(true);
+    const delayDebounceFn = setTimeout(() => {
+      searchBooks(bookSearchKeyword, 1, 10)
+        .then((res) => {
+          setBookOptions(res.result?.data || []);
+        })
+        .catch(err => console.error(err))
+        .finally(() => setSearchingBooks(false));
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [bookSearchKeyword]);
+
   const navigate = useNavigate();
 
   // Handle opening the popover
@@ -43,6 +70,9 @@ export default function Home() {
   const handleClosePopover = () => {
     setAnchorEl(null);
     setNewPostContent("");
+    setSelectedBook(null);
+    setBookSearchKeyword("");
+    setBookOptions([]);
   };
 
   // Handle Snackbar close
@@ -56,16 +86,35 @@ export default function Home() {
   // Handle posting new content
   const handlePostContent = () => {
     console.log("New post content:", newPostContent);
+    const bookToTag = selectedBook;
     handleClosePopover();
 
     createPost(newPostContent)
       .then((response) => {
-        console.log("Post created successfully:", response.data);
-        setPosts((prevPosts) => [response.data.result, ...prevPosts]);
-        setNewPostContent("");
-        setSnackbarMessage("Post created successfully!");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
+        const createdPost = response.data.result;
+        console.log("Post created successfully:", createdPost);
+        
+        if (bookToTag) {
+          tagPost(createdPost.id, [bookToTag.id])
+            .then(() => {
+              setSnackbarMessage("Post created and book tagged successfully!");
+              setSnackbarSeverity("success");
+              setSnackbarOpen(true);
+              setPosts((prevPosts) => [createdPost, ...prevPosts]);
+            })
+            .catch((err) => {
+              console.error(err);
+              setSnackbarMessage("Post created, but failed to tag the book.");
+              setSnackbarSeverity("warning");
+              setSnackbarOpen(true);
+              setPosts((prevPosts) => [createdPost, ...prevPosts]);
+            });
+        } else {
+          setPosts((prevPosts) => [createdPost, ...prevPosts]);
+          setSnackbarMessage("Post created successfully!");
+          setSnackbarSeverity("success");
+          setSnackbarOpen(true);
+        }
       })
       .catch((error) => {
         console.error("Error creating post:", error);
@@ -256,6 +305,36 @@ export default function Home() {
           value={newPostContent}
           onChange={(e) => setNewPostContent(e.target.value)}
           variant="outlined"
+          sx={{ mb: 2 }}
+        />
+        <Autocomplete
+          size="small"
+          options={bookOptions}
+          getOptionLabel={(option) => `${option.title} (${option.author})`}
+          loading={searchingBooks}
+          value={selectedBook}
+          onChange={(event, newValue) => {
+            setSelectedBook(newValue);
+          }}
+          onInputChange={(event, newInputValue) => {
+            setBookSearchKeyword(newInputValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Tag a Book (Optional)"
+              placeholder="Type to search books..."
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {searchingBooks ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
+            />
+          )}
           sx={{ mb: 2 }}
         />
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

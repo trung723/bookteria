@@ -27,3 +27,9 @@ export const addComment = async (postId, content) =>
 
 export const deleteComment = async (postId, commentId) =>
   httpClient.delete(`${API.COMMENT_POST}/${postId}/comments/${commentId}`, { headers: authHeader() });
+
+export const getPostById = async (postId) =>
+  httpClient.get(`/post/${postId}`, { headers: authHeader() });
+
+export const updateComment = async (postId, commentId, content) =>
+  httpClient.put(`/post/${postId}/comments/${commentId}`, { content }, { headers: { ...authHeader(), "Content-Type": "application/json" } });
